@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Firebase Forms',
+  title: 'Free Forms',
   description: 'Create, publish, and manage forms easily.',
 };
 

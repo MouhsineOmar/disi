@@ -159,7 +159,7 @@ export function FormRenderer({ form, isPreview = false }: FormRendererProps) {
         </form>
       </CardContent>
       <CardFooter className="text-center text-xs text-muted-foreground bg-secondary/30 py-3 rounded-b-lg">
-        Powered by Firebase Forms
+        Powered by Free Forms
       </CardFooter>
     </Card>
   );

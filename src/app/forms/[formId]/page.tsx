@@ -57,7 +57,7 @@ export default function PublishedFormPage({ params }: { params: { formId: string
           {error || 'The form you are trying to access is unavailable.'}
         </p>
         <Button asChild variant="outline">
-          <Link href="/">Visit Firebase Forms</Link>
+          <Link href="/">Visit Free Forms</Link>
         </Button>
       </div>
     );

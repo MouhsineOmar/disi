@@ -17,7 +17,7 @@ export function Header() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-primary">
             <Feather className="h-7 w-7" />
-            <span className="text-xl font-semibold">Firebase Forms</span>
+            <span className="text-xl font-semibold">Free Forms</span>
           </div>
           <div className="h-8 w-20 bg-muted rounded animate-pulse"></div> {/* Placeholder for buttons */}
         </div>
@@ -30,7 +30,7 @@ export function Header() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
           <Feather className="h-7 w-7" />
-          <span className="text-xl font-semibold">Firebase Forms</span>
+          <span className="text-xl font-semibold">Free Forms</span>
         </Link>
         
         <nav className="hidden md:flex items-center gap-2">
@@ -110,4 +110,3 @@ export function Header() {
     </header>
   );
 }
-
