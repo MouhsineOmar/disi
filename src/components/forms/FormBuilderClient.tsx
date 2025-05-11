@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FormFieldConfig } from './FormFieldConfig';
 import { saveForm as saveFormToStore, getFormById } from '@/lib/form-store';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Eye, Save, Sparkles, Loader2, Trash2, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Eye, Save, Sparkles, Loader2, Trash2, AlertTriangle, BookText } from 'lucide-react';
 import { suggestFormFields, SuggestFormFieldInput } from '@/ai/flows/suggest-form-fields';
 import { FormFieldIcon } from './FormFieldIcon';
 import {
@@ -50,6 +50,7 @@ export function FormBuilderClient({ initialForm }: { initialForm?: Form }) {
       id: formId || generateId(),
       title: 'Untitled Form',
       description: '',
+      projectNotes: '', // Initialize projectNotes
       fields: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -68,10 +69,11 @@ export function FormBuilderClient({ initialForm }: { initialForm?: Form }) {
       if (existingForm) {
         setForm(existingForm);
       } else {
-        // Handle form not found, maybe redirect or show error
         toast({ title: "Error", description: "Form not found.", variant: "destructive" });
         router.push('/');
       }
+    } else if (initialForm) {
+        setForm(initialForm);
     }
   }, [formId, initialForm, router, toast]);
 
@@ -105,13 +107,14 @@ export function FormBuilderClient({ initialForm }: { initialForm?: Form }) {
   const handleSaveForm = () => {
     setIsSaving(true);
     try {
-      const saved = saveFormToStore(form);
-      setForm(saved); // Update state with potentially new ID or timestamps
+      const updatedForm = { ...form, updatedAt: new Date().toISOString() };
+      const saved = saveFormToStore(updatedForm);
+      setForm(saved); 
       toast({
         title: 'Form Saved!',
         description: `"${saved.title}" has been successfully saved.`,
       });
-      if (!formId) { // If it was a new form, redirect to its edit page
+      if (!params.formId) { 
          router.replace(`/builder/${saved.id}`, { scroll: false });
       }
     } catch (error) {
@@ -126,11 +129,11 @@ export function FormBuilderClient({ initialForm }: { initialForm?: Form }) {
   };
 
   const handlePreviewForm = () => {
-    handleSaveForm(); // Save before previewing
+    handleSaveForm(); 
     if(form.id) {
       router.push(`/preview/${form.id}`);
     } else {
-       toast({ title: "Error", description: "Cannot preview unsaved form.", variant: "destructive" });
+       toast({ title: "Error", description: "Cannot preview unsaved form. Please save first.", variant: "destructive" });
     }
   };
 
@@ -159,15 +162,14 @@ export function FormBuilderClient({ initialForm }: { initialForm?: Form }) {
   };
   
   const addSuggestedField = (fieldName: string) => {
-    // Basic type inference, could be more sophisticated
     let type: FormFieldType = 'text';
-    if (fieldName.toLowerCase().includes('email')) type = 'text'; // HTML5 email type is handled by input type="email"
+    if (fieldName.toLowerCase().includes('email')) type = 'text'; 
     else if (fieldName.toLowerCase().includes('phone') || fieldName.toLowerCase().includes('number')) type = 'number';
     else if (fieldName.toLowerCase().includes('date')) type = 'date';
     else if (fieldName.toLowerCase().includes('description') || fieldName.toLowerCase().includes('message') || fieldName.toLowerCase().includes('comment')) type = 'textarea';
     
     addField(type, fieldName);
-    setAiSuggestions(prev => prev.filter(s => s !== fieldName)); // Remove from suggestions
+    setAiSuggestions(prev => prev.filter(s => s !== fieldName)); 
   };
 
   return (
@@ -175,7 +177,7 @@ export function FormBuilderClient({ initialForm }: { initialForm?: Form }) {
       <Card className="shadow-xl">
         <CardHeader>
           <CardTitle className="text-2xl">Form Settings</CardTitle>
-          <CardDescription>Define the title and description for your form.</CardDescription>
+          <CardDescription>Define the title, description, and internal notes for your form.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -198,6 +200,22 @@ export function FormBuilderClient({ initialForm }: { initialForm?: Form }) {
               onChange={handleInputChange}
               placeholder="Provide a brief description or instructions for your form."
             />
+          </div>
+           <div className="mt-4">
+            <Label htmlFor="projectNotes" className="flex items-center">
+                <BookText className="mr-2 h-4 w-4 text-muted-foreground" />
+                Project Notes (Internal)
+            </Label>
+            <Textarea
+              id="projectNotes"
+              name="projectNotes"
+              value={form.projectNotes || ''}
+              onChange={handleInputChange}
+              placeholder="Add internal notes, to-dos, or a detailed project brief here. Not visible on the public form."
+              rows={5}
+              className="mt-1"
+            />
+             <p className="text-xs text-muted-foreground mt-1">These notes are for your reference only and will not appear on the published form.</p>
           </div>
         </CardContent>
       </Card>
@@ -289,7 +307,7 @@ export function FormBuilderClient({ initialForm }: { initialForm?: Form }) {
         </Button>
         <Button onClick={handleSaveForm} disabled={isSaving} className="bg-primary hover:bg-primary/90 text-primary-foreground">
           {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-          {isSaving ? 'Saving...' : (formId ? 'Save Changes' : 'Save Form')}
+          {isSaving ? 'Saving...' : (params.formId ? 'Save Changes' : 'Save Form')}
         </Button>
       </div>
     </div>

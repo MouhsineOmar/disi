@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, Eye, Edit3, Share2, Trash2, ExternalLink, Feather } from 'lucide-react'; // Added Feather here
+import { PlusCircle, Eye, Edit3, Share2, Trash2, ExternalLink, Feather, Loader2, StickyNote } from 'lucide-react';
 import type { Form } from '@/types';
 import { getAllForms, deleteForm as deleteFormFromStore, publishForm as publishFormInStore, unpublishForm as unpublishFormInStore } from '@/lib/form-store';
 import {
@@ -17,20 +17,25 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export default function DashboardPage() {
+  const auth = useAuth();
   const [forms, setForms] = useState<Form[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isFormsLoading, setIsFormsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    setForms(getAllForms());
-    setIsLoading(false);
-  }, []);
+    if (auth.isAuthenticated && !auth.isLoading) {
+      setForms(getAllForms());
+      setIsFormsLoading(false);
+    } else if (!auth.isLoading && !auth.isAuthenticated) {
+      setIsFormsLoading(false);
+    }
+  }, [auth.isAuthenticated, auth.isLoading]);
 
   const handleDeleteForm = (id: string) => {
     deleteFormFromStore(id);
@@ -41,18 +46,27 @@ export default function DashboardPage() {
   const handlePublishToggle = (id: string) => {
     const form = forms.find(f => f.id === id);
     if (form) {
+      let result;
       if (form.publishedAt) {
-        unpublishFormInStore(id);
+        result = unpublishFormInStore(id);
         toast({ title: "Form Unpublished", description: "The form is no longer public." });
       } else {
-        publishFormInStore(id);
+        result = publishFormInStore(id);
         toast({ title: "Form Published", description: "The form is now public." });
       }
-      setForms(getAllForms());
+      if(result) setForms(getAllForms());
     }
   };
 
-  if (isLoading) {
+  if (auth.isLoading) {
+    return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Loading Dashboard...</span></div>;
+  }
+
+  if (!auth.isAuthenticated) {
+     return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Redirecting to login...</span></div>;
+  }
+
+  if (isFormsLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3].map(i => (
@@ -127,7 +141,13 @@ export default function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-grow">
-                <p className="text-sm text-muted-foreground truncate">{form.description || 'No description provided.'}</p>
+                <p className="text-sm text-muted-foreground truncate" title={form.description || ''}>{form.description || 'No description provided.'}</p>
+                 {form.projectNotes && (
+                    <div className="mt-2 flex items-start text-xs text-blue-600 italic" title={form.projectNotes}>
+                       <StickyNote className="h-3 w-3 mr-1 mt-0.5 shrink-0" /> 
+                       <p className="truncate">Note: {form.projectNotes}</p>
+                    </div>
+                )}
               </CardContent>
               <CardFooter className="grid grid-cols-2 gap-2 pt-4 border-t">
                 <Button variant="outline" size="sm" asChild>
@@ -140,7 +160,7 @@ export default function DashboardPage() {
                     <Eye className="mr-1 h-3 w-3" /> Preview
                   </Link>
                 </Button>
-                 <Button variant="outline" size="sm" onClick={() => handlePublishToggle(form.id)} className={form.publishedAt ? "text-yellow-600 border-yellow-500 hover:bg-yellow-50" : "text-green-600 border-green-500 hover:bg-green-50"}>
+                 <Button variant="outline" size="sm" onClick={() => handlePublishToggle(form.id)} className={form.publishedAt ? "text-yellow-600 border-yellow-500 hover:bg-yellow-50 hover:text-yellow-700" : "text-green-600 border-green-500 hover:bg-green-50 hover:text-green-700"}>
                   <Share2 className="mr-1 h-3 w-3" /> {form.publishedAt ? 'Unpublish' : 'Publish'}
                 </Button>
                 {form.publishedAt && form.publishedUrl && (
@@ -152,7 +172,7 @@ export default function DashboardPage() {
                 )}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="col-span-full sm:col-span-1"> {/* Adjusted for better layout */}
+                    <Button variant="destructive" size="sm" className="col-span-full sm:col-span-1">
                       <Trash2 className="mr-1 h-3 w-3" /> Delete
                     </Button>
                   </AlertDialogTrigger>

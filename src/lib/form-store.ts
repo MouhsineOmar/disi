@@ -1,16 +1,16 @@
 import type { Form } from '@/types';
-import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed or use crypto.randomUUID
+// import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed or use crypto.randomUUID - Using crypto.randomUUID directly
 
 const FORMS_STORAGE_KEY = 'firebaseForms_forms';
 
 const isBrowser = typeof window !== 'undefined';
 
-// Helper for UUID if uuid package is not available/allowed
+// Helper for UUID
 const generateId = (): string => {
   if (isBrowser && window.crypto && window.crypto.randomUUID) {
     return window.crypto.randomUUID();
   }
-  // Basic fallback (consider a more robust polyfill or allow uuid package)
+  // Basic fallback
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
@@ -34,23 +34,33 @@ export const saveForm = (form: Partial<Form> & { id?: string }): Form => {
   if (!isBrowser) throw new Error("localStorage is not available.");
   const forms = getAllForms();
   const now = new Date().toISOString();
+  let finalFormId: string;
 
   if (form.id) {
-    // Update existing form
+    finalFormId = form.id;
     const index = forms.findIndex(f => f.id === form.id);
     if (index > -1) {
-      forms[index] = { ...forms[index], ...form, updatedAt: now } as Form;
-    } else {
-      // If ID provided but not found, treat as new (or throw error)
-      const newForm: Form = {
-        id: form.id,
-        title: form.title || 'Untitled Form',
-        fields: form.fields || [],
-        createdAt: now,
-        updatedAt: now,
-        ...form,
+      forms[index] = { 
+        ...forms[index], 
+        ...form, 
+        // projectNotes is handled by spreading ...form after ...forms[index]
+        // If form.projectNotes is undefined, forms[index].projectNotes will persist.
+        // If form.projectNotes is a string (even empty), it will overwrite.
+        updatedAt: now 
       } as Form;
-      forms.push(newForm);
+    } else {
+      // If ID provided but not found, treat as new with this ID
+      const newFormWithGivenId: Form = {
+        id: form.id, // Use provided ID
+        title: form.title || 'Untitled Form',
+        description: form.description || '',
+        projectNotes: form.projectNotes || '', // Initialize if not present
+        fields: form.fields || [],
+        createdAt: form.createdAt || now, // Preserve original createdAt if available, else use now
+        updatedAt: now,
+        ...form, // Spread the rest, this will correctly set projectNotes if it's in form
+      } as Form; // Cast as Form is needed as `form` is Partial
+      forms.push(newFormWithGivenId);
     }
   } else {
     // Create new form
@@ -58,17 +68,26 @@ export const saveForm = (form: Partial<Form> & { id?: string }): Form => {
       id: generateId(),
       title: form.title || 'Untitled Form',
       description: form.description || '',
+      projectNotes: form.projectNotes || '', // Initialize if not present
       fields: form.fields || [],
       createdAt: now,
       updatedAt: now,
-      ...form,
-    } as Form;
+      ...form, // Spread the rest
+    } as Form; // Cast as Form
     forms.push(newForm);
-    form = newForm; // Update the passed form object with new ID and timestamps
+    finalFormId = newForm.id;
   }
 
   localStorage.setItem(FORMS_STORAGE_KEY, JSON.stringify(forms));
-  return form as Form; // Return the saved/updated form
+  
+  // Retrieve the form from the updated list to ensure we return the complete, stored object
+  const savedForm = forms.find(f => f.id === finalFormId);
+  if (!savedForm) {
+    // This should ideally not happen if logic is correct
+    console.error("Failed to retrieve saved form from store immediately after saving. Form ID:", finalFormId, "Current form data:", form);
+    throw new Error("Failed to retrieve saved form from store.");
+  }
+  return savedForm;
 };
 
 export const deleteForm = (id: string): void => {
@@ -80,24 +99,22 @@ export const deleteForm = (id: string): void => {
 
 export const publishForm = (id: string): Form | undefined => {
   if (!isBrowser) return undefined;
-  const form = getFormById(id);
-  if (form) {
-    form.publishedAt = new Date().toISOString();
-    form.publishedUrl = `${window.location.origin}/forms/${form.id}`;
-    saveForm(form);
-    return form;
+  const formToPublish = getFormById(id);
+  if (formToPublish) {
+    formToPublish.publishedAt = new Date().toISOString();
+    formToPublish.publishedUrl = `${window.location.origin}/forms/${formToPublish.id}`;
+    return saveForm(formToPublish); // saveForm will handle updatedAt and preserve projectNotes
   }
   return undefined;
 };
 
 export const unpublishForm = (id: string): Form | undefined => {
   if (!isBrowser) return undefined;
-  const form = getFormById(id);
-  if (form) {
-    form.publishedAt = undefined;
-    form.publishedUrl = undefined;
-    saveForm(form);
-    return form;
+  const formToUnpublish = getFormById(id);
+  if (formToUnpublish) {
+    formToUnpublish.publishedAt = undefined;
+    formToUnpublish.publishedUrl = undefined;
+    return saveForm(formToUnpublish); // saveForm will handle updatedAt and preserve projectNotes
   }
   return undefined;
 };

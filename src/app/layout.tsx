@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from "@/components/ui/toaster";
 import { AppProviders } from '@/components/providers/AppProviders';
+import { AuthProvider } from '@/components/providers/AuthProvider'; // New import
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,12 +31,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
         <AppProviders>
-          <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">
-            {children}
-          </main>
-          <Footer />
-          <Toaster />
+          <AuthProvider>
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8">
+              {children}
+            </main>
+            <Footer />
+            <Toaster />
+          </AuthProvider>
         </AppProviders>
       </body>
     </html>

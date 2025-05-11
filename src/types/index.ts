@@ -20,6 +20,7 @@ export interface Form {
   id: string; // UUID
   title: string;
   description?: string;
+  projectNotes?: string; // Added for blocnote
   fields: FormField[];
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string

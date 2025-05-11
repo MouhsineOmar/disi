@@ -7,33 +7,47 @@ import type { Form } from '@/types';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export default function PreviewFormPage({ params }: { params: { formId: string } }) {
+  const auth = useAuth();
   const [form, setForm] = useState<Form | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
+  const [isFormDataLoading, setIsFormDataLoading] = useState(true); // Specific to form data
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const loadedForm = getFormById(params.formId);
-      if (loadedForm) {
-        setForm(loadedForm);
-      } else {
-        setError('Form not found. It might have been deleted or the ID is incorrect.');
+    if (auth.isAuthenticated && !auth.isLoading) { // Only load if authenticated
+      try {
+        const loadedForm = getFormById(params.formId);
+        if (loadedForm) {
+          setForm(loadedForm);
+        } else {
+          setError('Form not found. It might have been deleted or the ID is incorrect.');
+        }
+      } catch (e) {
+        console.error("Error loading form for preview:", e);
+        setError('Failed to load form data.');
+      } finally {
+        setIsFormDataLoading(false);
       }
-    } catch (e) {
-      console.error("Error loading form for preview:", e);
-      setError('Failed to load form data.');
-    } finally {
-      setLoading(false);
+    } else if (!auth.isLoading && !auth.isAuthenticated) {
+      setIsFormDataLoading(false); // AuthProvider handles redirect
     }
-  }, [params.formId]);
+  }, [params.formId, auth.isAuthenticated, auth.isLoading]);
 
-  if (loading) {
+  if (auth.isLoading) {
+    return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Loading Preview...</span></div>;
+  }
+
+  if (!auth.isAuthenticated) {
+     return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Redirecting to login...</span></div>;
+  }
+
+  if (isFormDataLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4 text-lg text-muted-foreground">Loading Form Preview...</p>
+        <p className="mt-4 text-lg text-muted-foreground">Loading Form Preview Data...</p>
       </div>
     );
   }
