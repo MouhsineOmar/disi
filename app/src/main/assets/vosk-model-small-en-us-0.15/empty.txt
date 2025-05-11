@@ -1,0 +1,5 @@
+This directory should contain the Vosk offline speech recognition model.
+Due to size constraints, the actual model files are not included here.
+Download the 'vosk-model-small-en-us-0.15' (or other preferred model) from https://alphacephei.com/vosk/models
+and place its contents (files like am, graph, conf, etc.) into this directory ('app/src/main/assets/vosk-model-small-en-us-0.15').
+Make sure the path in MainActivity.java (StorageService.unpack call) matches the model directory name in assets.
