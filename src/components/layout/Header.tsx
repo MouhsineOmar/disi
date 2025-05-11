@@ -1,9 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { Menu, Feather, LogIn, LogOut, LayoutDashboard, PlusCircleIcon } from 'lucide-react';
+import { Menu, Feather, LogIn, LogOut, LayoutDashboard, PlusCircleIcon, UserPlus } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider'; 
 
 export function Header() {
@@ -46,11 +47,18 @@ export function Header() {
               </Button>
             </>
           ) : (
-            <Button variant="default" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Link href="/login">
-                <LogIn className="mr-2 h-4 w-4" /> Login
-              </Link>
-            </Button>
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/login">
+                  <LogIn className="mr-2 h-4 w-4" /> Login
+                </Link>
+              </Button>
+              <Button variant="default" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Link href="/signup">
+                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                </Link>
+              </Button>
+            </>
           )}
         </nav>
 
@@ -81,11 +89,18 @@ export function Header() {
                     </Button>
                   </>
                 ) : (
-                  <SheetClose asChild>
-                  <Link href="/login" className="text-lg font-medium hover:text-primary transition-colors flex items-center gap-2 py-2">
-                    <LogIn className="mr-2 h-5 w-5" /> Login
-                  </Link>
-                  </SheetClose>
+                  <>
+                    <SheetClose asChild>
+                      <Link href="/login" className="text-lg font-medium hover:text-primary transition-colors flex items-center gap-2 py-2">
+                        <LogIn className="mr-2 h-5 w-5" /> Login
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/signup" className="text-lg font-medium hover:text-primary transition-colors flex items-center gap-2 py-2">
+                        <UserPlus className="mr-2 h-5 w-5" /> Sign Up
+                      </Link>
+                    </SheetClose>
+                  </>
                 )}
               </nav>
             </SheetContent>
@@ -95,3 +110,4 @@ export function Header() {
     </header>
   );
 }
+

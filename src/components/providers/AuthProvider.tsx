@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -57,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (isLoading) return;
 
-    const publicPaths = ['/login'];
+    const publicPaths = ['/login', '/signup'];
     const isPublicPath = publicPaths.includes(pathname);
     const isFormViewPath = pathname.startsWith('/forms/'); // Published forms are public
 
@@ -69,8 +70,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // If loading, show a full-page loader. This prevents content flashing.
   // Specific pages might also have their own auth.isLoading checks for more granular loading UI.
   if (isLoading && !pathname.startsWith('/forms/')) { // Don't show auth loader for public form views
-     const publicPaths = ['/login'];
-     if (!publicPaths.includes(pathname)) { // Avoid showing this loader on the login page itself while it's determining auth state
+     const publicPaths = ['/login', '/signup'];
+     if (!publicPaths.includes(pathname)) { // Avoid showing this loader on the login/signup page itself while it's determining auth state
         return (
             <div className="flex flex-col justify-center items-center min-h-screen fixed inset-0 bg-background z-[100]">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -95,3 +96,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
