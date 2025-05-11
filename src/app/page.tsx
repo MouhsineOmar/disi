@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -6,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, Eye, Edit3, Share2, Trash2, ExternalLink, Feather, StickyNote } from 'lucide-react'; // Removed Loader2 as LottieAnimation handles its own loading
+import { PlusCircle, Eye, Edit3, Share2, Trash2, ExternalLink, StickyNote } from 'lucide-react'; // Removed Loader2 as LottieAnimation handles its own loading
 import type { Form } from '@/types';
 import { getAllForms, deleteForm as deleteFormFromStore, publishForm as publishFormInStore, unpublishForm as unpublishFormInStore } from '@/lib/form-store';
 import {
@@ -18,11 +17,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger, // Added missing import
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { LottieAnimation } from '@/components/common/LottieAnimation';
+import { Feather } from 'lucide-react'; // Added Feather import
+
 
 export default function DashboardPage() {
   const auth = useAuth();
