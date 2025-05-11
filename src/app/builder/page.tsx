@@ -1,19 +1,39 @@
+
 'use client'; 
 
 import { FormBuilderClient } from '@/components/forms/FormBuilderClient';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { Loader2 } from 'lucide-react';
+import { LottieAnimation } from '@/components/common/LottieAnimation';
 
 export default function CreateFormPage() {
   const auth = useAuth();
 
   if (auth.isLoading) {
-    return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Loading Form Builder...</span></div>;
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Loading Form Builder..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   if (!auth.isAuthenticated) {
-    // AuthProvider will redirect, this is a fallback or for the brief moment before redirect
-     return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Redirecting to login...</span></div>;
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Redirecting to login..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   return (

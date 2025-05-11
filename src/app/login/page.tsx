@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { LogIn, Loader2, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { LottieAnimation } from '@/components/common/LottieAnimation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -19,38 +20,52 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // If already authenticated and loading is finished, redirect to dashboard
     if (auth.isAuthenticated && !auth.isLoading) {
        router.push('/');
     }
   }, [auth.isAuthenticated, auth.isLoading, router]);
 
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call
     setTimeout(() => {
       if (email && password) {
-        auth.login(); // login will redirect to '/' by default
+        auth.login(); 
       } else {
-        alert('Please enter email and password.'); // Simple validation
+        alert('Please enter email and password.'); 
         setIsSubmitting(false);
       }
-      // setIsSubmitting will be false after redirect or if login fails before redirect
     }, 500);
   };
   
-  // If auth is still loading its initial state, show page loader
   if (auth.isLoading) {
-    return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-  }
-  // If authenticated after loading, router.push in useEffect will handle it.
-  // Render form if not authenticated and not loading.
-  if (auth.isAuthenticated) {
-      return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><Loader2 className="h-8 w-8 animate-spin text-primary" /> <span className="ml-2">Redirecting...</span></div>;
+    // This state is largely covered by AuthProvider's full-page loader
+    // but kept for robustness or if AuthProvider's loader is conditional
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-10rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
+  if (auth.isAuthenticated) {
+      return (
+        <div className="flex flex-col justify-center items-center min-h-[calc(100vh-10rem)]">
+          <LottieAnimation
+            animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+            width={150}
+            height={150}
+            message="Redirecting..."
+            data-ai-hint="loading animation"
+          />
+        </div>
+      );
+  }
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-15rem)] py-12">
@@ -108,4 +123,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

@@ -11,6 +11,7 @@ import { UserPlus, Loader2, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { LottieAnimation } from '@/components/common/LottieAnimation';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -38,12 +39,9 @@ export default function SignupPage() {
       return;
     }
     setIsSubmitting(true);
-    // Simulate API call for sign up
     setTimeout(() => {
       if (email && password) {
-        // In a real app, you would call your backend to create a user
-        // For this demo, we'll just simulate login after "sign up"
-        auth.login(); // This will redirect to '/'
+        auth.login(); 
       } else {
         toast({
           title: "Missing Information",
@@ -56,11 +54,31 @@ export default function SignupPage() {
   };
 
   if (auth.isLoading) {
-    return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    // Covered by AuthProvider, but kept for robustness
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-10rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   if (auth.isAuthenticated) {
-    return <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]"><Loader2 className="h-8 w-8 animate-spin text-primary" /> <span className="ml-2">Redirecting...</span></div>;
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-10rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Redirecting..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   return (

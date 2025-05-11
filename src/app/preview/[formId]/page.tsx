@@ -1,22 +1,24 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { FormRenderer } from '@/components/forms/FormRenderer';
 import { getFormById } from '@/lib/form-store';
 import type { Form } from '@/types';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { LottieAnimation } from '@/components/common/LottieAnimation';
 
 export default function PreviewFormPage({ params }: { params: { formId: string } }) {
   const auth = useAuth();
   const [form, setForm] = useState<Form | undefined>(undefined);
-  const [isFormDataLoading, setIsFormDataLoading] = useState(true); // Specific to form data
+  const [isFormDataLoading, setIsFormDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (auth.isAuthenticated && !auth.isLoading) { // Only load if authenticated
+    if (auth.isAuthenticated && !auth.isLoading) {
       try {
         const loadedForm = getFormById(params.formId);
         if (loadedForm) {
@@ -31,23 +33,48 @@ export default function PreviewFormPage({ params }: { params: { formId: string }
         setIsFormDataLoading(false);
       }
     } else if (!auth.isLoading && !auth.isAuthenticated) {
-      setIsFormDataLoading(false); // AuthProvider handles redirect
+      setIsFormDataLoading(false);
     }
   }, [params.formId, auth.isAuthenticated, auth.isLoading]);
 
   if (auth.isLoading) {
-    return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Loading Preview...</span></div>;
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Loading Preview..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   if (!auth.isAuthenticated) {
-     return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Redirecting to login...</span></div>;
+     return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Redirecting to login..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   if (isFormDataLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4 text-lg text-muted-foreground">Loading Form Preview Data...</p>
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={120}
+          height={120}
+          message="Loading Form Preview Data..."
+          data-ai-hint="loading animation"
+        />
       </div>
     );
   }

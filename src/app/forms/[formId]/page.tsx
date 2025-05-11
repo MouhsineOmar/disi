@@ -1,12 +1,14 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { FormRenderer } from '@/components/forms/FormRenderer';
 import { getFormById } from '@/lib/form-store';
 import type { Form } from '@/types';
-import { Loader2, AlertTriangle, Lock } from 'lucide-react';
+import { AlertTriangle, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { LottieAnimation } from '@/components/common/LottieAnimation';
 
 export default function PublishedFormPage({ params }: { params: { formId: string } }) {
   const [form, setForm] = useState<Form | undefined>(undefined);
@@ -36,8 +38,13 @@ export default function PublishedFormPage({ params }: { params: { formId: string
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4 text-lg text-muted-foreground">Loading Form...</p>
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Loading Form..."
+          data-ai-hint="loading animation"
+        />
       </div>
     );
   }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -5,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, Eye, Edit3, Share2, Trash2, ExternalLink, Feather, Loader2, StickyNote } from 'lucide-react';
+import { PlusCircle, Eye, Edit3, Share2, Trash2, ExternalLink, Feather, StickyNote } from 'lucide-react'; // Removed Loader2 as LottieAnimation handles its own loading
 import type { Form } from '@/types';
 import { getAllForms, deleteForm as deleteFormFromStore, publishForm as publishFormInStore, unpublishForm as unpublishFormInStore } from '@/lib/form-store';
 import {
@@ -21,6 +22,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { LottieAnimation } from '@/components/common/LottieAnimation';
 
 export default function DashboardPage() {
   const auth = useAuth();
@@ -59,13 +61,37 @@ export default function DashboardPage() {
   };
 
   if (auth.isLoading) {
-    return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Loading Dashboard...</span></div>;
+    // This state is mostly handled by AuthProvider's full-page loader.
+    // This is a fallback or for the brief moment if AuthProvider's loader isn't active.
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Loading Dashboard..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   if (!auth.isAuthenticated) {
-     return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Redirecting to login...</span></div>;
+     // This state is also mostly handled by AuthProvider causing a redirect.
+     return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Redirecting to login..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
+  // Skeleton loader for forms data, kept as is for better UX than a single Lottie for content.
   if (isFormsLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

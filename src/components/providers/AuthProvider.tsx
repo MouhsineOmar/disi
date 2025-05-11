@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { LottieAnimation } from '@/components/common/LottieAnimation'; // Changed import
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error("Error accessing localStorage:", error);
-      // Handle environments where localStorage might be blocked or unavailable
     } finally {
       setIsLoading(false);
     }
@@ -60,27 +59,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const publicPaths = ['/login', '/signup'];
     const isPublicPath = publicPaths.includes(pathname);
-    const isFormViewPath = pathname.startsWith('/forms/'); // Published forms are public
+    const isFormViewPath = pathname.startsWith('/forms/');
 
     if (!isAuthenticated && !isPublicPath && !isFormViewPath) {
       router.push('/login');
     }
   }, [isAuthenticated, isLoading, router, pathname]);
 
-  // If loading, show a full-page loader. This prevents content flashing.
-  // Specific pages might also have their own auth.isLoading checks for more granular loading UI.
-  if (isLoading && !pathname.startsWith('/forms/')) { // Don't show auth loader for public form views
+  if (isLoading && !pathname.startsWith('/forms/')) {
      const publicPaths = ['/login', '/signup'];
-     if (!publicPaths.includes(pathname)) { // Avoid showing this loader on the login/signup page itself while it's determining auth state
+     if (!publicPaths.includes(pathname)) {
         return (
             <div className="flex flex-col justify-center items-center min-h-screen fixed inset-0 bg-background z-[100]">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="ml-4 text-xl mt-4">Authenticating...</p>
+                <LottieAnimation
+                  animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+                  width={250}
+                  height={250}
+                  message="Authenticating..."
+                  data-ai-hint="loading animation"
+                />
             </div>
         );
      }
   }
-
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
@@ -96,4 +97,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

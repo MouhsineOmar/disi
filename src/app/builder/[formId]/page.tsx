@@ -1,20 +1,21 @@
+
 'use client';
 
 import { FormBuilderClient } from '@/components/forms/FormBuilderClient';
 import { getFormById } from '@/lib/form-store';
 import type { Form } from '@/types';
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { LottieAnimation } from '@/components/common/LottieAnimation';
 
 export default function EditFormPage({ params }: { params: { formId: string } }) {
   const auth = useAuth();
   const [initialForm, setInitialForm] = useState<Form | undefined>(undefined);
-  const [isFormDataLoading, setIsFormDataLoading] = useState(true); // Specific to form data
+  const [isFormDataLoading, setIsFormDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (auth.isAuthenticated && !auth.isLoading) { // Only load if authenticated
+    if (auth.isAuthenticated && !auth.isLoading) {
       const loadForm = () => {
         try {
           const form = getFormById(params.formId);
@@ -32,30 +33,57 @@ export default function EditFormPage({ params }: { params: { formId: string } })
       };
       loadForm();
     } else if (!auth.isLoading && !auth.isAuthenticated) {
-      // AuthProvider handles redirect, set form data loading to false
       setIsFormDataLoading(false);
     }
-    // If auth.isLoading, wait for auth state to resolve
   }, [params.formId, auth.isAuthenticated, auth.isLoading]);
 
   if (auth.isLoading) {
-    return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Loading Editor...</span></div>;
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Loading Editor..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   if (!auth.isAuthenticated) {
-     return <div className="flex justify-center items-center min-h-[calc(100vh-15rem)]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Redirecting to login...</span></div>;
+     return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-15rem)]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={150}
+          height={150}
+          message="Redirecting to login..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
-  // Now, if authenticated, check form data loading state
   if (isFormDataLoading) {
-    return <div className="flex justify-center items-center min-h-[60vh]"><Loader2 className="h-12 w-12 animate-spin text-primary" /> <span className="ml-4 text-xl">Loading Form Data...</span></div>;
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh]">
+        <LottieAnimation
+          animationPath="https://assets1.lottiefiles.com/packages/lf20_kxsd2ytq.json"
+          width={120} // Slightly smaller for content area loading
+          height={120}
+          message="Loading Form Data..."
+          data-ai-hint="loading animation"
+        />
+      </div>
+    );
   }
 
   if (error) {
     return <div className="text-center py-10 text-destructive text-xl">{error}</div>;
   }
   
-  if (!initialForm && !isFormDataLoading) { // Check after form data loading is complete
+  if (!initialForm && !isFormDataLoading) {
      return <div className="text-center py-10 text-destructive text-xl">Form with ID {params.formId} not found.</div>;
   }
 
